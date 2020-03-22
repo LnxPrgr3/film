@@ -1,3 +1,5 @@
+#include "lut.h"
+#include "transfer.h"
 #include <cmath>
 #include <iostream>
 #include <xmmintrin.h>
@@ -190,22 +192,15 @@ public:
 int main(int argc, char *argv[]) {
 	const int num_values = 64;
 	const film_model<float> film(1.5, 0.00390625);
+	const class gamma transfer(2.2f);
 	_MM_SET_EXCEPTION_MASK(_MM_GET_EXCEPTION_MASK() & ~_MM_MASK_INVALID);
-	cout << "TITLE \"title\"\n\n";
-	cout << "LUT_3D_SIZE " << num_values << "\n\n";
-	for (int b = 0; b < num_values; ++b) {
-		const float input_b = (float)b / (float)(num_values - 1);
-		for (int g = 0; g < num_values; ++g) {
-			const float input_g = (float)g / (float)(num_values - 1);
-			for (int r = 0; r < num_values; ++r) {
-				const float input_r = (float)r / (float)(num_values - 1);
-				const float input[3] = {pow(input_r, 2.2f), pow(input_g, 2.2f),
-				                        pow(input_b, 2.2f)};
-				float output[3];
-				film(output, input);
-				cout << pow(output[0], 1 / 2.2f) << ' ' << pow(output[1], 1 / 2.2f)
-				     << ' ' << pow(output[2], 1 / 2.2f) << '\n';
-			}
-		}
-	}
+
+	lut_write(cout, "title", 64, [&](rgb in) -> rgb {
+		const float input[3] = {transfer.decode(in.r), transfer.decode(in.g),
+		                        transfer.decode(in.b)};
+		float output[3];
+		film(output, input);
+		return rgb(transfer.encode(output[0]), transfer.encode(output[1]),
+		           transfer.encode(output[2]));
+	});
 }

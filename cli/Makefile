@@ -1,4 +1,4 @@
-CXXFLAGS += -I../common
+override CXXFLAGS += -I../common
 
 .PHONY: all clean
 
