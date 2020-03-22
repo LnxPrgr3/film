@@ -3,8 +3,8 @@
 
 struct transfer_function {
 	virtual ~transfer_function();
-	virtual float decode(float) const = 0;
-	virtual float encode(float) const = 0;
+	virtual float decode(const float) const = 0;
+	virtual float encode(const float) const = 0;
 };
 
 class gamma : public transfer_function {
@@ -14,8 +14,8 @@ private:
 
 public:
 	gamma(float gamma);
-	float decode(float) const;
-	float encode(float) const;
+	float decode(const float) const;
+	float encode(const float) const;
 };
 
 #endif

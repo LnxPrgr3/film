@@ -4,6 +4,7 @@
 #include <functional>
 #include <ostream>
 
-void lut_write(std::ostream &stream, const char *title, int size, std::function<rgb(rgb)> filter);
+void lut_write(std::ostream &stream, const char *const title, const int size,
+               const std::function<rgb(rgb)> filter);
 
 #endif

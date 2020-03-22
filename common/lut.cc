@@ -1,6 +1,7 @@
 #include "lut.h"
 
-void lut_write(std::ostream &stream, const char *title, int size, std::function<rgb(rgb)> filter) {
+void lut_write(std::ostream &stream, const char *const title, const int size,
+               std::function<rgb(rgb)> filter) {
 	stream << "TITLE \"" << title << "\"\n\n";
 	stream << "LUT_3D_SIZE " << size << "\n\n";
 	for (int b = 0; b < size; ++b) {
