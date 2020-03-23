@@ -1,4 +1,5 @@
 #include "lut.h"
+#include "matrix.h"
 #include "transfer.h"
 #include <cmath>
 #include <iostream>
@@ -66,7 +67,7 @@ private:
 	T _inverse[3][3];
 
 public:
-	colorspace(const T matrix[3][3])
+	colorspace(matrix matrix)
 	    : _matrix{{matrix[0][0], matrix[0][1], matrix[0][2]},
 	              {matrix[1][0], matrix[1][1], matrix[1][2]},
 	              {matrix[2][0], matrix[2][1], matrix[2][2]}} {
@@ -88,9 +89,9 @@ public:
 
 template <typename T> class film_model {
 private:
-	static constexpr T _src_matrix[3][3] = {{0.49 / 0.17697, 0.31 / 0.17697, 0.2 / 0.17697},
-	                                        {1, 0.8124 / 0.17697, 0.01063 / 0.17697},
-	                                        {0, 0.01 / 0.17697, 0.99 / 0.17697}};
+	static constexpr matrix _src_matrix{{0.49 / 0.17697, 0.31 / 0.17697, 0.2 / 0.17697},
+	                                    {1, 0.8124 / 0.17697, 0.01063 / 0.17697},
+	                                    {0, 0.01 / 0.17697, 0.99 / 0.17697}};
 	const T _gamma;
 	const T _fog;
 	const T _saturation;
