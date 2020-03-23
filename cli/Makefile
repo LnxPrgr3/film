@@ -7,7 +7,7 @@ all: film
 clean:
 	rm -f film.o film
 
-film: film.o ../common/lut_common.a
+film: film.o ../common/film_common.a
 	${CXX} ${CXXFLAGS} -o $@ $^
 
 film.o: film.cc ../common/lut.h ../common/transfer.h ../common/matrix.h
