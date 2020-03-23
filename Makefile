@@ -1,5 +1,5 @@
 CFLAGS=-O3 -pipe
-CXXFLAGS=-std=c++11 ${CFLAGS}
+CXXFLAGS=-std=c++14 ${CFLAGS}
 
 .PHONY: all clean
 

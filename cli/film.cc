@@ -31,7 +31,7 @@ float clip(float x) {
 	return x;
 }
 
-template <typename T> void matrix_invert(T dst[3][3], const T src[3][3]) {
+template <typename T> void matrix_invert(T dst[3][3], const matrix src) {
 	T inverse[3][3];
 	inverse[0][0] = src[1][1] * src[2][2] - src[1][2] * src[2][1];
 	inverse[0][1] = -(src[1][0] * src[2][2] - src[1][2] * src[2][0]);
@@ -63,16 +63,11 @@ template <typename T> void matrix_invert(T dst[3][3], const T src[3][3]) {
 
 template <typename T> class colorspace {
 private:
-	const T _matrix[3][3];
-	T _inverse[3][3];
+	const matrix _matrix;
+	const matrix _inverse;
 
 public:
-	colorspace(matrix matrix)
-	    : _matrix{{matrix[0][0], matrix[0][1], matrix[0][2]},
-	              {matrix[1][0], matrix[1][1], matrix[1][2]},
-	              {matrix[2][0], matrix[2][1], matrix[2][2]}} {
-		matrix_invert(_inverse, _matrix);
-	}
+	constexpr colorspace(matrix matrix) : _matrix(matrix), _inverse(invert(matrix)) {}
 
 	void toXYZ(T *dst, const T *src) const {
 		dst[0] = src[0] * _matrix[0][0] + src[1] * _matrix[0][1] + src[2] * _matrix[0][2];

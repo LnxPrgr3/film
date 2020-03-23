@@ -40,4 +40,26 @@ public:
 	constexpr row operator[](size_t x) const { return _data[x]; }
 };
 
+constexpr matrix invert(const matrix &src) {
+	const float inverse_0_0 = src[1][1] * src[2][2] - src[1][2] * src[2][1];
+	const float inverse_0_1 = -(src[1][0] * src[2][2] - src[1][2] * src[2][0]);
+	const float inverse_0_2 = src[1][0] * src[2][1] - src[1][1] * src[2][0];
+
+	const float inverse_1_0 = -(src[0][1] * src[2][2] - src[0][2] * src[2][1]);
+	const float inverse_1_1 = src[0][0] * src[2][2] - src[0][2] * src[2][0];
+	const float inverse_1_2 = -(src[0][0] * src[2][1] - src[0][1] * src[2][0]);
+
+	const float inverse_2_0 = src[0][1] * src[1][2] - src[0][2] * src[1][1];
+	const float inverse_2_1 = -(src[0][0] * src[1][2] - src[0][2] * src[1][0]);
+	const float inverse_2_2 = src[0][0] * src[1][1] - src[0][1] * src[1][0];
+
+	const float determinant =
+	    src[0][0] * inverse_0_0 + src[0][1] * inverse_0_1 + src[0][2] * inverse_0_2;
+
+	return matrix{
+	    {inverse_0_0 / determinant, inverse_1_0 / determinant, inverse_2_0 / determinant},
+	    {inverse_0_1 / determinant, inverse_1_1 / determinant, inverse_2_1 / determinant},
+	    {inverse_0_2 / determinant, inverse_1_2 / determinant, inverse_2_2 / determinant}};
+}
+
 #endif
