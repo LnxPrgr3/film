@@ -93,4 +93,10 @@ constexpr matrix operator*(const matrix &x, const matrix &y) {
 	               x[2][0] * y[0][2] + x[2][1] * y[1][2] + x[2][2] * y[2][2]}};
 }
 
+constexpr matrix operator/(const matrix &x, float y) {
+	return matrix{{x[0][0] / y, x[0][1] / y, x[0][2] / y},
+	              {x[1][0] / y, x[1][1] / y, x[1][2] / y},
+	              {x[2][0] / y, x[2][1] / y, x[2][2] / y}};
+}
+
 #endif

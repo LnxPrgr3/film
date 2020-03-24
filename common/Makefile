@@ -1,5 +1,5 @@
 .PHONY: all clean
-OBJECTS = lut.o transfer.o
+OBJECTS = lut.o transfer.o colorspace.o
 
 all: film_common.a
 
@@ -12,3 +12,4 @@ clean:
 
 lut.o: lut.cc lut.h types.h
 transfer.o: transfer.cc transfer.h
+colorspace.o: colorspace.cc colorspace.h matrix.h transfer.h types.h
