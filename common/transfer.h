@@ -18,6 +18,13 @@ public:
 	float encode(const float) const;
 };
 
+class linear_transfer_function : public transfer_function {
+public:
+	float decode(const float) const;
+	float encode(const float) const;
+};
+
 extern const class gamma gamma_2_2_transfer;
+extern const linear_transfer_function linear_transfer;
 
 #endif
