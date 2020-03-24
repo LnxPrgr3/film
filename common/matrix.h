@@ -1,5 +1,16 @@
 #ifndef FILM_COMMON_MATRIX_H
 #define FILM_COMMON_MATRIX_H
+#include <cstddef>
+
+class vector {
+private:
+	const float _data[3];
+
+public:
+	constexpr vector(float d0, float d1, float d2) : _data{d0, d1, d2} {}
+
+	constexpr float operator[](size_t x) const { return _data[x]; }
+};
 
 class matrix {
 private:
@@ -60,6 +71,26 @@ constexpr matrix invert(const matrix &src) {
 	    {inverse_0_0 / determinant, inverse_1_0 / determinant, inverse_2_0 / determinant},
 	    {inverse_0_1 / determinant, inverse_1_1 / determinant, inverse_2_1 / determinant},
 	    {inverse_0_2 / determinant, inverse_1_2 / determinant, inverse_2_2 / determinant}};
+}
+
+constexpr vector operator*(const matrix &x, const vector &y) {
+	return vector(x[0][0] * y[0] + x[0][1] * y[1] + x[0][2] * y[2],
+	              x[1][0] * y[0] + x[1][1] * y[1] + x[1][2] * y[2],
+	              x[1][0] * y[0] + x[1][1] * y[1] + x[1][2] * y[2]);
+}
+
+constexpr vector operator*(const vector &x, const matrix &y) { return y * x; }
+
+constexpr matrix operator*(const matrix &x, const matrix &y) {
+	return matrix{{x[0][0] * y[0][0] + x[0][1] * y[1][0] + x[0][2] * y[2][0],
+	               x[0][0] * y[0][1] + x[0][1] * y[1][1] + x[0][2] * y[2][1],
+	               x[0][0] * y[0][2] + x[0][1] * y[1][2] + x[0][2] * y[2][2]},
+	              {x[1][0] * y[0][0] + x[1][1] * y[1][0] + x[1][2] * y[2][0],
+	               x[1][0] * y[0][1] + x[1][1] * y[1][1] + x[1][2] * y[2][1],
+	               x[1][0] * y[0][2] + x[1][1] * y[1][2] + x[1][2] * y[2][2]},
+	              {x[2][0] * y[0][0] + x[2][1] * y[1][0] + x[2][2] * y[2][0],
+	               x[2][0] * y[0][1] + x[2][1] * y[1][1] + x[2][2] * y[2][1],
+	               x[2][0] * y[0][2] + x[2][1] * y[1][2] + x[2][2] * y[2][2]}};
 }
 
 #endif
