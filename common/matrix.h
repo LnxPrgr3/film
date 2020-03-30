@@ -76,7 +76,7 @@ constexpr matrix invert(const matrix &src) {
 constexpr vector operator*(const matrix &x, const vector &y) {
 	return vector(x[0][0] * y[0] + x[0][1] * y[1] + x[0][2] * y[2],
 	              x[1][0] * y[0] + x[1][1] * y[1] + x[1][2] * y[2],
-	              x[1][0] * y[0] + x[1][1] * y[1] + x[1][2] * y[2]);
+	              x[2][0] * y[0] + x[2][1] * y[1] + x[2][2] * y[2]);
 }
 
 constexpr vector operator*(const vector &x, const matrix &y) { return y * x; }
