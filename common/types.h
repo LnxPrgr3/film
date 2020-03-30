@@ -26,6 +26,8 @@ struct XYZ {
 	const float X, Y, Z;
 
 	constexpr XYZ(float X, float Y, float Z) : X(X), Y(Y), Z(Z) {}
+
+	constexpr xy chromacity() const { return {X / (X + Y + Z), Y / (X + Y + Z)}; }
 };
 
 #endif

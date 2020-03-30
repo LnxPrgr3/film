@@ -17,8 +17,8 @@ private:
 		    {red.x, green.x, blue.x}, {red.y, green.y, blue.y}, {red.z, green.z, blue.z}};
 		const vector scalars = invert(tristimulus_matrix) * white_vector;
 		const matrix result =
-		    matrix{{scalars[0], 0, 0}, {0, scalars[1], 0}, {0, 0, scalars[2]}} *
-		    tristimulus_matrix;
+		    tristimulus_matrix *
+		    matrix{{scalars[0], 0, 0}, {0, scalars[1], 0}, {0, 0, scalars[2]}};
 		return result / result[1][0];
 	}
 

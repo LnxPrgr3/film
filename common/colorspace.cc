@@ -11,8 +11,8 @@ const rgb colorspace::toRGB(const XYZ &XYZ) const {
 	return {_transfer.encode(result[0]), _transfer.encode(result[1]), _transfer.encode(result[2])};
 }
 
-const colorspace CIERGB_colorspace(xy(0.7347, 0.2653), xy(0.1596, 0.8404), xy(0.0366, 0.0001),
+const colorspace CIERGB_colorspace(xy(0.7347, 0.2653), xy(0.2738, 0.7174), xy(0.1666, 0.0089),
                                    xy(1.f / 3, 1.f / 3), gamma_2_2_transfer);
 
-const colorspace CIERGB_linear_colorspace(xy(0.7347, 0.2653), xy(0.1596, 0.8404), xy(0.0366, 0.0001),
+const colorspace CIERGB_linear_colorspace(xy(0.7347, 0.2653), xy(0.2738, 0.7174), xy(0.1666, 0.0089),
                                           xy(1.f / 3, 1.f / 3), linear_transfer);
