@@ -3,9 +3,13 @@
 
 transfer_function::~transfer_function() {}
 
-float gamma::decode(const float input) const { return pow(input, _gamma); }
+float gamma::decode(const float input) const {
+	return input < 0 ? 0 : input > 1 ? 1 : pow(input, _gamma);
+}
 
-float gamma::encode(const float input) const { return pow(input, _inv_gamma); }
+float gamma::encode(const float input) const {
+	return input < 0 ? 0 : input > 1 ? 1 : pow(input, _inv_gamma);
+}
 
 float linear_transfer_function::decode(const float input) const { return input; }
 float linear_transfer_function::encode(const float input) const { return input; }
