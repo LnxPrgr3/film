@@ -7,23 +7,6 @@
 #include <xmmintrin.h>
 using namespace std;
 
-template <typename V> V gamma(V x) {
-	const auto q = ((V)4) * x * x;
-	return (q - ((V)1)) / q;
-}
-
-template <typename V> V f(V x) {
-	const V o = ((V)6) / 29;
-	return x > o * o * o ? cbrt(x) : x / (3 * o * o) + ((V)4) / 29;
-}
-
-template <typename V> V L(V x, V max) { return ((V)116) * f(x / max) - ((V)16); }
-
-template <typename V> V response(V x, V g, V fog) {
-	const V one = 1;
-	return one - pow(one - 0.5, 2 * x * g + 2 * fog);
-}
-
 float clip(float x) {
 	if (x < 0)
 		x = 0;
@@ -32,52 +15,14 @@ float clip(float x) {
 	return x;
 }
 
-template <typename T> void matrix_invert(T dst[3][3], const matrix src) {
-	T inverse[3][3];
-	inverse[0][0] = src[1][1] * src[2][2] - src[1][2] * src[2][1];
-	inverse[0][1] = -(src[1][0] * src[2][2] - src[1][2] * src[2][0]);
-	inverse[0][2] = src[1][0] * src[2][1] - src[1][1] * src[2][0];
-
-	inverse[1][0] = -(src[0][1] * src[2][2] - src[0][2] * src[2][1]);
-	inverse[1][1] = src[0][0] * src[2][2] - src[0][2] * src[2][0];
-	inverse[1][2] = -(src[0][0] * src[2][1] - src[0][1] * src[2][0]);
-
-	inverse[2][0] = src[0][1] * src[1][2] - src[0][2] * src[1][1];
-	inverse[2][1] = -(src[0][0] * src[1][2] - src[0][2] * src[1][0]);
-	inverse[2][2] = src[0][0] * src[1][1] - src[0][1] * src[1][0];
-
-	T determinant =
-	    src[0][0] * inverse[0][0] + src[0][1] * inverse[0][1] + src[0][2] * inverse[0][2];
-
-	dst[0][0] = inverse[0][0] / determinant;
-	dst[0][1] = inverse[1][0] / determinant;
-	dst[0][2] = inverse[2][0] / determinant;
-
-	dst[1][0] = inverse[0][1] / determinant;
-	dst[1][1] = inverse[1][1] / determinant;
-	dst[1][2] = inverse[2][1] / determinant;
-
-	dst[2][0] = inverse[0][2] / determinant;
-	dst[2][1] = inverse[1][2] / determinant;
-	dst[2][2] = inverse[2][2] / determinant;
-}
-
 template <typename T> class film_model {
 private:
 	const T _gamma;
 	const T _fog;
-	const T _saturation;
 	const colorspace _src_colorspace;
 	const colorspace _dst_colorspace;
 
 	static T cast(T x) { return x; }
-
-	T saturation(T gamma, T fog) const {
-		const T max = response(0.18);
-		const T min = response(0.09);
-		const T saturation = (max - min) / max;
-		return 0.5 / saturation;
-	}
 
 	colorspace output_colorspace() const {
 		T high = response(0.18);
@@ -94,8 +39,8 @@ private:
 
 public:
 	film_model(T gamma, T fog)
-	    : _gamma(gamma), _fog(fog), _saturation(saturation(gamma, fog)),
-	      _src_colorspace(CIERGB_linear_colorspace), _dst_colorspace(output_colorspace()) {}
+	    : _gamma(gamma), _fog(fog), _src_colorspace(CIERGB_linear_colorspace),
+	      _dst_colorspace(output_colorspace()) {}
 
 	void operator()(T *dst, const T *src) const {
 		rgb output = _dst_colorspace.toRGB(
