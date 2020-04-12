@@ -7,7 +7,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	const film film(CIERGB_colorspace, 1.5f, 0.00390625f);
+	const film film(CIERGB_colorspace, 1.5f, 1.f / 512.f);
 
 	lut_write(cout, "title", 64, film);
 }

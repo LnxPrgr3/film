@@ -4,8 +4,8 @@
 
 class film {
 private:
-	float _gamma;
 	float _fog;
+	float _gamma;
 	const colorspace &_source_colorspace;
 	const colorspace _working_colorspace;
 
