@@ -19,10 +19,18 @@ colorspace film::working_colorspace() const {
 	return colorspace(red, green, blue, {1 / 3.f, 1 / 3.f}, linear_transfer);
 }
 
-float film::response(float x) const { return 1 - pow(0.5f, 2 * x * _gamma + 2 * _fog); }
+float film::softplus(float x) const {
+	const float linear_threshold = (_offset / _gamma) + _fog * 4.f;
+	return x > linear_threshold ? x : log(1.f + exp(_softplus_scale * x)) / _softplus_scale;
+}
+
+float film::response(float x) const {
+	return 1 - pow(0.5f, 2 * softplus(x * _gamma - _offset) + 2 * _fog);
+}
 
 film::film(const colorspace &colorspace, float gamma, float fog)
-    : _fog(mapped_fog(fog)), _gamma(mapped_gamma(gamma, _fog)), _source_colorspace(colorspace),
+    : _fog(mapped_fog(fog)), _gamma(mapped_gamma(gamma, _fog)), _offset(0.1f * _gamma - 0.1f),
+      _softplus_scale(2.16749f / (2.f * _fog + (_offset / _gamma))), _source_colorspace(colorspace),
       _working_colorspace(working_colorspace()) {}
 
 rgb film::operator()(rgb x) const {
