@@ -3,10 +3,7 @@
 
 static float mapped_fog(float x) { return log(1.f / (1.f - x)) / (2.f * log(2.f)); }
 
-static float mapped_gamma(float gamma, float fog) {
-	return gamma / ((log(2.f) * pow(2.f, -2.f * fog - 1.f / 5.f)) /
-	                (5.f * (1.f - pow(2.f, -2.f * fog - 1.f / 5.f))));
-}
+static float mapped_gamma(float gamma) { return gamma / 0.9322862792581212; }
 
 colorspace film::working_colorspace() const {
 	float high = response(0.18);
@@ -19,18 +16,13 @@ colorspace film::working_colorspace() const {
 	return colorspace(red, green, blue, {1 / 3.f, 1 / 3.f}, linear_transfer);
 }
 
-float film::softplus(float x) const {
-	const float linear_threshold = (_offset / _gamma) + _fog * 4.f;
-	return x > linear_threshold ? x : log(1.f + exp(_softplus_scale * x)) / _softplus_scale;
-}
+float film::softplus(float x) const { return log(_softplus_offset + exp(x)); }
 
-float film::response(float x) const {
-	return 1 - pow(0.5f, 2 * softplus(x * _gamma - _offset) + 2 * _fog);
-}
+float film::response(float x) const { return 1 - pow(0.5f, 2 * softplus(x * _gamma - _offset)); }
 
 film::film(const colorspace &colorspace, float gamma, float fog)
-    : _fog(mapped_fog(fog)), _gamma(mapped_gamma(gamma, _fog)), _offset(0.1f * _gamma - 0.1f),
-      _softplus_scale(2.16749f / (2.f * _fog + (_offset / _gamma))), _source_colorspace(colorspace),
+    : _fog(mapped_fog(fog)), _gamma(mapped_gamma(gamma)), _offset(0.18f * _gamma - 0.18f),
+      _softplus_offset(exp(_fog) - exp(-_offset)), _source_colorspace(colorspace),
       _working_colorspace(working_colorspace()) {}
 
 rgb film::operator()(rgb x) const {
