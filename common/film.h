@@ -7,12 +7,10 @@ private:
 	float _fog;
 	float _gamma;
 	float _offset;
-	float _softplus_offset;
 	const colorspace &_source_colorspace;
 	const colorspace _working_colorspace;
 
 	colorspace working_colorspace() const;
-	float softplus(float x) const;
 	float response(float x) const;
 
 public:
