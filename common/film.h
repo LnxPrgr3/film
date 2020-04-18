@@ -6,6 +6,7 @@ class film {
 private:
 	float _fog;
 	float _gamma;
+	float _offset;
 	const colorspace &_source_colorspace;
 	const colorspace _working_colorspace;
 

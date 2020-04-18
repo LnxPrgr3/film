@@ -1,12 +1,9 @@
 #include "film.h"
 #include <cmath>
 
-static float mapped_fog(float x) { return log(1.f / (1.f - x)) / (2.f * log(2.f)); }
+static const float bungholes_number = 0.640089356302193f;
 
-static float mapped_gamma(float gamma, float fog) {
-	return gamma / ((log(2.f) * pow(2.f, -2.f * fog - 1.f / 5.f)) /
-	                (5.f * (1.f - pow(2.f, -2.f * fog - 1.f / 5.f))));
-}
+static float lux(float density) { return 10.f / 9.f - pow(10.f, 1.f - density) / 9.f; }
 
 colorspace film::working_colorspace() const {
 	float high = response(0.18);
@@ -19,11 +16,12 @@ colorspace film::working_colorspace() const {
 	return colorspace(red, green, blue, {1 / 3.f, 1 / 3.f}, linear_transfer);
 }
 
-float film::response(float x) const { return 1 - pow(0.5f, 2 * x * _gamma + 2 * _fog); }
+float film::response(float x) const { return lux(1.f - pow(0.5f, pow(_offset * x, _gamma))) + _fog; }
 
 film::film(const colorspace &colorspace, float gamma, float fog)
-    : _fog(mapped_fog(fog)), _gamma(mapped_gamma(gamma, _fog)), _source_colorspace(colorspace),
-      _working_colorspace(working_colorspace()) {}
+    : _fog(fog), _gamma(gamma),
+      _offset(bungholes_number * pow(9.f, 1.f - gamma) * pow(50.f, (gamma - 1.f))),
+      _source_colorspace(colorspace), _working_colorspace(working_colorspace()) {}
 
 rgb film::operator()(rgb x) const {
 	rgb working = CIERGB_linear_colorspace.toRGB(_source_colorspace.toXYZ(x));
