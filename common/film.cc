@@ -16,7 +16,9 @@ colorspace film::working_colorspace() const {
 	return colorspace(red, green, blue, {1 / 3.f, 1 / 3.f}, linear_transfer);
 }
 
-float film::response(float x) const { return lux(1.f - pow(0.5f, pow(_offset * x, _gamma))) + _fog; }
+float film::response(float x) const {
+	return x > 0.f ? lux(1.f - pow(0.5f, pow(_offset * x, _gamma))) + _fog : _fog;
+}
 
 film::film(const colorspace &colorspace, float gamma, float fog)
     : _fog(fog), _gamma(gamma),
