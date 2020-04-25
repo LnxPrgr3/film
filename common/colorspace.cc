@@ -1,8 +1,8 @@
 #include "colorspace.h"
 
 const XYZ colorspace::toXYZ(const rgb &rgb) const {
-	const vector result(_color_matrix * vector(_transfer.decode(rgb.r), _transfer.decode(rgb.g),
-	                                           _transfer.decode(rgb.b)));
+	const vector result(_color_matrix * vector(_transfer.decode(rgb.r()), _transfer.decode(rgb.g()),
+	                                           _transfer.decode(rgb.b())));
 	return {result[0], result[1], result[2]};
 }
 

@@ -25,10 +25,12 @@ struct XYZ : public pixel {
 	constexpr xy chromacity() const { return {X() / (X() + Y() + Z()), Y() / (X() + Y() + Z())}; }
 };
 
-struct rgb {
-	const float r, g, b;
+struct rgb : public pixel {
+	constexpr rgb(const float r, const float g, const float b) : pixel(r, g, b) {}
 
-	constexpr rgb(float r, float g, float b) : r(r), g(g), b(b) {}
+	constexpr float r() const { return subpixels[0]; }
+	constexpr float g() const { return subpixels[1]; }
+	constexpr float b() const { return subpixels[2]; }
 };
 
 struct xyz {
