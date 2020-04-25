@@ -7,7 +7,7 @@ const XYZ colorspace::toXYZ(const rgb &rgb) const {
 }
 
 const rgb colorspace::toRGB(const XYZ &XYZ) const {
-	const vector result(_inverse_matrix * vector(XYZ.X, XYZ.Y, XYZ.Z));
+	const vector result(_inverse_matrix * vector(XYZ.X(), XYZ.Y(), XYZ.Z()));
 	return {_transfer.encode(result[0]), _transfer.encode(result[1]), _transfer.encode(result[2])};
 }
 
