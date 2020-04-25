@@ -13,4 +13,4 @@ clean:
 lut.o: lut.cc lut.h types.h
 transfer.o: transfer.cc transfer.h
 colorspace.o: colorspace.cc colorspace.h matrix.h transfer.h types.h
-film.o: film.cc colorspace.h matrix.h transfer.h types.h
+film.o: film.cc film.h colorspace.h matrix.h transfer.h types.h
