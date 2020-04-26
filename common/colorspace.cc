@@ -1,14 +1,9 @@
 #include "colorspace.h"
 
-const XYZ colorspace::toXYZ(const rgb &rgb) const {
-	const vector result(_color_matrix * vector(_transfer.decode(rgb.r), _transfer.decode(rgb.g),
-	                                           _transfer.decode(rgb.b)));
-	return {result[0], result[1], result[2]};
-}
+const XYZ colorspace::toXYZ(const rgb &rgb) const { return _color_matrix * _transfer.decode(rgb); }
 
 const rgb colorspace::toRGB(const XYZ &XYZ) const {
-	const vector result(_inverse_matrix * vector(XYZ.X, XYZ.Y, XYZ.Z));
-	return {_transfer.encode(result[0]), _transfer.encode(result[1]), _transfer.encode(result[2])};
+	return rgb(_transfer.encode(_inverse_matrix * XYZ));
 }
 
 static constexpr matrix ciergb_matrix{

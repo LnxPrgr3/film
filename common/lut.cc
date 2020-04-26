@@ -11,7 +11,7 @@ void lut_write(std::ostream &stream, const char *const title, const int size,
 			for (int r = 0; r < size; ++r) {
 				const float input_r = (float)r / (size - 1);
 				const rgb output = filter(rgb(input_r, input_g, input_b));
-				stream << output.r << ' ' << output.g << ' ' << output.b << '\n';
+				stream << output.r() << ' ' << output.g() << ' ' << output.b() << '\n';
 			}
 		}
 	}

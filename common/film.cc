@@ -29,5 +29,5 @@ rgb film::operator()(rgb x) const {
 	rgb working = CIERGB_linear_colorspace.toRGB(_source_colorspace.toXYZ(x));
 	return _source_colorspace.toRGB(
 	    CIERGB_linear_colorspace.toXYZ(_working_colorspace.toRGB(CIERGB_linear_colorspace.toXYZ(
-	        {response(working.r), response(working.g), response(working.b)}))));
+	        {response(working.r()), response(working.g()), response(working.b())}))));
 }

@@ -45,11 +45,8 @@ int main(int argc, char *argv[]) {
 	if (options.print_contrast > 0) {
 		float stage_gamma = sqrt(options.gamma);
 		const film film(CIERGB_colorspace, stage_gamma, options.fog);
-		rgb white = film(film({1.f, 1.f, 1.f}));
-		float white_level =
-		    (gamma_2_2_transfer.decode(white.r) + gamma_2_2_transfer.decode(white.g) +
-		     gamma_2_2_transfer.decode(white.b)) /
-		    3;
+		pixel white = gamma_2_2_transfer.decode(film(film({1.f, 1.f, 1.f})));
+		float white_level = (white.subpixels[0] + white.subpixels[1] + white.subpixels[2]) / 3;
 		const class film print(CIERGB_colorspace, stage_gamma,
 		                       white_level / options.print_contrast);
 
