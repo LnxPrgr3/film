@@ -20,18 +20,6 @@ struct xy {
 	constexpr xy(float x, float y) : x(x), y(y) {}
 };
 
-struct XYZ : public pixel {
-	constexpr XYZ(float X, float Y, float Z) : pixel(X, Y, Z) {}
-	constexpr XYZ(const vector &subpixels) : pixel(subpixels) {}
-	explicit constexpr XYZ(const pixel &x) : pixel(x) {}
-
-	constexpr float X() const { return subpixels[0]; }
-	constexpr float Y() const { return subpixels[1]; }
-	constexpr float Z() const { return subpixels[2]; }
-
-	constexpr xy chromacity() const { return {X() / (X() + Y() + Z()), Y() / (X() + Y() + Z())}; }
-};
-
 struct rgb : public pixel {
 	constexpr rgb(const float r, const float g, const float b) : pixel(r, g, b) {}
 	constexpr rgb(const vector &subpixels) : pixel(subpixels) {}
@@ -49,6 +37,18 @@ struct xyz {
 	constexpr xyz(const xy xy) : x(xy.x), y(xy.y), z(1 - xy.x - xy.y) {}
 
 	constexpr xyz normalized() const { return xyz(x / y, 1, z / y); }
+};
+
+struct XYZ : public pixel {
+	constexpr XYZ(float X, float Y, float Z) : pixel(X, Y, Z) {}
+	constexpr XYZ(const vector &subpixels) : pixel(subpixels) {}
+	explicit constexpr XYZ(const pixel &x) : pixel(x) {}
+
+	constexpr float X() const { return subpixels[0]; }
+	constexpr float Y() const { return subpixels[1]; }
+	constexpr float Z() const { return subpixels[2]; }
+
+	constexpr xy chromacity() const { return {X() / (X() + Y() + Z()), Y() / (X() + Y() + Z())}; }
 };
 
 #endif
