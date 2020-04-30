@@ -11,22 +11,27 @@ using namespace std;
 struct options {
 	const char *title;
 	float gamma;
+	float color_gamma;
 	float fog;
 	float print_contrast;
 
-	options() : title("film"), gamma(1.5f), fog(1.f / 512.f), print_contrast(-1) {}
+	options()
+	    : title("film"), gamma(1.5f), color_gamma(1.473), fog(1.f / 512.f), print_contrast(-1) {}
 };
 
 static options parse_options(int argc, char *argv[]) {
 	options result;
 	int ch;
-	while ((ch = getopt(argc, argv, "t:g:f:p:")) != -1) {
+	while ((ch = getopt(argc, argv, "t:g:c:f:p:")) != -1) {
 		switch (ch) {
 		case 't':
 			result.title = optarg;
 			break;
 		case 'g':
 			result.gamma = strtod(optarg, NULL);
+			break;
+		case 'c':
+			result.color_gamma = strtod(optarg, NULL);
 			break;
 		case 'f':
 			result.fog = 1. / pow(2., strtod(optarg, NULL));
@@ -44,15 +49,16 @@ int main(int argc, char *argv[]) {
 
 	if (options.print_contrast > 0) {
 		float stage_gamma = sqrt(options.gamma);
-		const film film(CIERGB_colorspace, stage_gamma, options.fog);
+		float stage_color_gamma = sqrt(options.color_gamma);
+		const film film(CIERGB_colorspace, stage_gamma, stage_color_gamma, options.fog);
 		pixel white = gamma_2_2_transfer.decode(film(film({1.f, 1.f, 1.f})));
 		float white_level = (white.subpixels[0] + white.subpixels[1] + white.subpixels[2]) / 3;
-		const class film print(CIERGB_colorspace, stage_gamma,
+		const class film print(CIERGB_colorspace, stage_gamma, stage_color_gamma,
 		                       white_level / options.print_contrast);
 
 		lut_write(cout, options.title, 64, [&](rgb x) { return print(film(x)); });
 	} else {
-		const film film(CIERGB_colorspace, options.gamma, options.fog);
+		const film film(CIERGB_colorspace, options.gamma, options.color_gamma, options.fog);
 		lut_write(cout, options.title, 64, film);
 	}
 }
