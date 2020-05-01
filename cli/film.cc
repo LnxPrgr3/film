@@ -16,7 +16,8 @@ struct options {
 	float print_contrast;
 
 	options()
-	    : title("film"), gamma(1.5f), color_gamma(1.473), fog(1.f / 512.f), print_contrast(-1) {}
+	    : title("film"), gamma(1.473f), color_gamma(1.473f), fog((0.75f / 255.f) / 12.92f),
+	      print_contrast(-1) {}
 };
 
 static options parse_options(int argc, char *argv[]) {
