@@ -6,7 +6,7 @@ static const float bungholes_number = 0.640089356302193f;
 static float lux(float density) { return 10.f / 9.f - pow(10.f, 1.f - density) / 9.f; }
 
 colorspace film::working_colorspace() const {
-	float subtract = 0.18f - pow(0.18f, _color_gamma);
+	float subtract = 0.18f - pow(0.18f, _correct_color_for_gamma);
 	float high = 1.f + _fog;
 	float low = _fog - subtract / 2.f;
 
@@ -21,8 +21,8 @@ float film::response(float x) const {
 	return x > 0.f ? lux(1.f - pow(0.5f, pow(_offset * x, _gamma))) + _fog : _fog;
 }
 
-film::film(const colorspace &colorspace, float gamma, float color_gamma, float fog)
-    : _fog(fog), _gamma(gamma), _color_gamma(color_gamma),
+film::film(const colorspace &colorspace, float gamma, float correct_color_for_gamma, float fog)
+    : _fog(fog), _gamma(gamma), _correct_color_for_gamma(correct_color_for_gamma),
       _offset(bungholes_number * pow(9.f, 1.f - gamma) * pow(50.f, (gamma - 1.f))),
       _source_colorspace(colorspace), _working_colorspace(working_colorspace()) {}
 

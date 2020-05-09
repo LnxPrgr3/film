@@ -11,13 +11,13 @@ using namespace std;
 struct options {
 	const char *title;
 	float gamma;
-	float color_gamma;
+	float correct_color_for_gamma;
 	float fog;
 	float print_contrast;
 
 	options()
-	    : title("film"), gamma(1.473f), color_gamma(1.473f), fog((0.75f / 255.f) / 12.92f),
-	      print_contrast(-1) {}
+	    : title("film"), gamma(1.473f), correct_color_for_gamma(1.473f),
+	      fog((0.75f / 255.f) / 12.92f), print_contrast(-1) {}
 };
 
 static options parse_options(int argc, char *argv[]) {
@@ -32,7 +32,7 @@ static options parse_options(int argc, char *argv[]) {
 			result.gamma = strtod(optarg, NULL);
 			break;
 		case 'c':
-			result.color_gamma = strtod(optarg, NULL);
+			result.correct_color_for_gamma = strtod(optarg, NULL);
 			break;
 		case 'f':
 			result.fog = 1. / pow(2., strtod(optarg, NULL));
@@ -50,16 +50,18 @@ int main(int argc, char *argv[]) {
 
 	if (options.print_contrast > 0) {
 		float stage_gamma = sqrt(options.gamma);
-		float stage_color_gamma = sqrt(options.color_gamma);
-		const film film(CIERGB_colorspace, stage_gamma, stage_color_gamma, options.fog);
+		float stage_correct_color_for_gamma = sqrt(options.correct_color_for_gamma);
+		const film film(CIERGB_colorspace, stage_gamma, stage_correct_color_for_gamma,
+		                options.fog);
 		pixel white = gamma_2_2_transfer.decode(film(film({1.f, 1.f, 1.f})));
 		float white_level = (white.subpixels[0] + white.subpixels[1] + white.subpixels[2]) / 3;
-		const class film print(CIERGB_colorspace, stage_gamma, stage_color_gamma,
+		const class film print(CIERGB_colorspace, stage_gamma, stage_correct_color_for_gamma,
 		                       white_level / options.print_contrast);
 
 		lut_write(cout, options.title, 64, [&](rgb x) { return print(film(x)); });
 	} else {
-		const film film(CIERGB_colorspace, options.gamma, options.color_gamma, options.fog);
+		const film film(CIERGB_colorspace, options.gamma, options.correct_color_for_gamma,
+		                options.fog);
 		lut_write(cout, options.title, 64, film);
 	}
 }
