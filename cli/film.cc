@@ -28,6 +28,10 @@ static const colorspace *find_colorspace(const char *name) {
 		return &sRGB_colorspace;
 	}
 
+	if (!strcmp("bt709", name_lower)) {
+		return &bt709_colorspace;
+	}
+
 	cout << "# Warning: invalid colorspace " << name << " requested; using CIERGB\n";
 	return &CIERGB_colorspace;
 }
