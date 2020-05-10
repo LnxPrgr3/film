@@ -41,7 +41,28 @@ public:
 	using transfer_function::encode;
 };
 
+class linear_gamma : public transfer_function {
+private:
+	const float _linear_scale;
+	const float _gamma_threshold;
+	const float _gamma;
+	const float _dec_linear_scale;
+	const float _dec_gamma_threshold;
+	const float _dec_gamma;
+
+public:
+	constexpr linear_gamma(float linear_scale, float gamma_threshold, float gamma)
+	    : _linear_scale(linear_scale), _gamma_threshold(gamma_threshold), _gamma(gamma),
+	      _dec_linear_scale(1 / linear_scale), _dec_gamma_threshold(gamma_threshold / linear_scale),
+	      _dec_gamma(1.f / gamma) {}
+	float decode(const float) const;
+	float encode(const float) const;
+	using transfer_function::decode;
+	using transfer_function::encode;
+};
+
 extern const class gamma gamma_2_2_transfer;
 extern const linear_transfer_function linear_transfer;
+extern const linear_gamma prophoto_transfer;
 
 #endif
