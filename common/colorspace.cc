@@ -12,3 +12,7 @@ static constexpr matrix ciergb_matrix{
 constexpr const colorspace CIERGB_colorspace(ciergb_matrix, gamma_2_2_transfer);
 
 constexpr const colorspace CIERGB_linear_colorspace(ciergb_matrix, linear_transfer);
+
+constexpr const colorspace ProPhoto_colorspace({0.734699, 0.265301}, {0.159597, 0.840403},
+                                               {0.036598, 0.000105}, {0.345704, 0.358540},
+                                               prophoto_transfer);

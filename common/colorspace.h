@@ -41,5 +41,6 @@ public:
 
 extern const colorspace CIERGB_colorspace;
 extern const colorspace CIERGB_linear_colorspace;
+extern const colorspace ProPhoto_colorspace;
 
 #endif
