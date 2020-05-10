@@ -16,3 +16,6 @@ constexpr const colorspace CIERGB_linear_colorspace(ciergb_matrix, linear_transf
 constexpr const colorspace ProPhoto_colorspace({0.734699, 0.265301}, {0.159597, 0.840403},
                                                {0.036598, 0.000105}, {0.345704, 0.358540},
                                                prophoto_transfer);
+
+constexpr const colorspace sRGB_colorspace({0.64, 0.33}, {0.30, 0.60}, {0.05, 0.06}, {0.3127, 0.3290},
+                                           srgb_transfer);

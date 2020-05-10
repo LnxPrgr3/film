@@ -46,15 +46,20 @@ private:
 	const float _linear_scale;
 	const float _gamma_threshold;
 	const float _gamma;
+	const float _gamma_scale;
+	const float _gamma_offset;
 	const float _dec_linear_scale;
 	const float _dec_gamma_threshold;
 	const float _dec_gamma;
+	const float _dec_gamma_scale;
 
 public:
-	constexpr linear_gamma(float linear_scale, float gamma_threshold, float gamma)
+	constexpr linear_gamma(float linear_scale, float gamma_threshold, float gamma,
+	                       float gamma_scale, float gamma_offset)
 	    : _linear_scale(linear_scale), _gamma_threshold(gamma_threshold), _gamma(gamma),
+	      _gamma_scale(gamma_scale), _gamma_offset(gamma_offset),
 	      _dec_linear_scale(1 / linear_scale), _dec_gamma_threshold(gamma_threshold / linear_scale),
-	      _dec_gamma(1.f / gamma) {}
+	      _dec_gamma(1.f / gamma), _dec_gamma_scale(1.f / gamma_scale) {}
 	float decode(const float) const;
 	float encode(const float) const;
 	using transfer_function::decode;
@@ -64,5 +69,6 @@ public:
 extern const class gamma gamma_2_2_transfer;
 extern const linear_transfer_function linear_transfer;
 extern const linear_gamma prophoto_transfer;
+extern const linear_gamma srgb_transfer;
 
 #endif

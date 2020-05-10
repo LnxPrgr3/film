@@ -24,6 +24,10 @@ static const colorspace *find_colorspace(const char *name) {
 		return &ProPhoto_colorspace;
 	}
 
+	if (!strcmp("srgb", name_lower)) {
+		return &sRGB_colorspace;
+	}
+
 	cout << "# Warning: invalid colorspace " << name << " requested; using CIERGB\n";
 	return &CIERGB_colorspace;
 }
