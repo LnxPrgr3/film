@@ -29,7 +29,7 @@ float linear_gamma::encode(const float input) const {
 }
 
 const class gamma gamma_2_2_transfer(2.2);
-const class gamma gamma_2_4_transfer(2.4);
 const linear_transfer_function linear_transfer;
 const linear_gamma prophoto_transfer(16, 1.f / 512, 1 / 1.8f, 1, 0);
 const linear_gamma srgb_transfer(12.92f, 0.0031308f, 1 / 2.4f, 1.055f, 0.055f);
+const linear_gamma bt709_transfer(4.5f, 0.0189f, 0.45f, 1.099f, 0.099f);
