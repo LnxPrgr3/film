@@ -67,9 +67,9 @@ public:
 };
 
 extern const class gamma gamma_2_2_transfer;
-extern const class gamma gamma_2_4_transfer;
 extern const linear_transfer_function linear_transfer;
 extern const linear_gamma prophoto_transfer;
 extern const linear_gamma srgb_transfer;
+extern const linear_gamma bt709_transfer;
 
 #endif

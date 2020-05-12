@@ -21,4 +21,4 @@ constexpr const colorspace sRGB_colorspace({0.64, 0.33}, {0.30, 0.60}, {0.05, 0.
                                            srgb_transfer);
 
 constexpr const colorspace bt709_colorspace({0.64, 0.33}, {0.30, 0.60}, {0.05, 0.06}, {0.3127, 0.3290},
-                                            gamma_2_4_transfer);
+                                            bt709_transfer);
