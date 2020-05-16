@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "transfer.h"
 #include <cmath>
+#include <cstring>
 #include <getopt.h>
 #include <iostream>
 #include <unistd.h>
@@ -42,11 +43,11 @@ struct options {
 	float correct_color_for_gamma;
 	float fog;
 	float print_contrast;
-	const colorspace *colorspace;
+	const colorspace *io_colorspace;
 
 	options()
 	    : title("film"), gamma(1.473f), correct_color_for_gamma(1.473f),
-	      fog((0.75f / 255.f) / 12.92f), print_contrast(-1), colorspace(&CIERGB_colorspace) {}
+	      fog((0.75f / 255.f) / 12.92f), print_contrast(-1), io_colorspace(&CIERGB_colorspace) {}
 };
 
 static void show_help(const char *name) {
@@ -117,8 +118,8 @@ static options parse_options(int argc, char *argv[]) {
 			result.print_contrast = parse_float_optarg(argv[0]);
 			break;
 		case 's':
-			result.colorspace = find_colorspace(optarg);
-			if (result.colorspace == NULL) {
+			result.io_colorspace = find_colorspace(optarg);
+			if (result.io_colorspace == NULL) {
 				cerr << "Unrecognized colorspace: " << optarg << "\n\n";
 				show_help(argv[0]);
 			}
@@ -138,17 +139,17 @@ int main(int argc, char *argv[]) {
 	if (options.print_contrast > 0) {
 		float stage_gamma = sqrt(options.gamma);
 		float stage_correct_color_for_gamma = sqrt(options.correct_color_for_gamma);
-		const film film(*options.colorspace, stage_gamma, stage_correct_color_for_gamma,
+		const film film(*options.io_colorspace, stage_gamma, stage_correct_color_for_gamma,
 		                options.fog);
-		pixel white =
-		    options.colorspace->transfer_function().decode(film(film({1.f, 1.f, 1.f})));
+		pixel white = options.io_colorspace->transfer().decode(film(film({1.f, 1.f, 1.f})));
 		float white_level = (white.subpixels[0] + white.subpixels[1] + white.subpixels[2]) / 3;
-		const class film print(*options.colorspace, stage_gamma, stage_correct_color_for_gamma,
+		const class film print(*options.io_colorspace, stage_gamma,
+		                       stage_correct_color_for_gamma,
 		                       white_level / options.print_contrast);
 
 		lut_write(cout, options.title, 64, [&](rgb x) { return print(film(x)); });
 	} else {
-		const film film(*options.colorspace, options.gamma, options.correct_color_for_gamma,
+		const film film(*options.io_colorspace, options.gamma, options.correct_color_for_gamma,
 		                options.fog);
 		lut_write(cout, options.title, 64, film);
 	}
