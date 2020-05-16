@@ -35,7 +35,7 @@ public:
 	    : _transfer(transfer), _color_matrix(scale(color_matrix)),
 	      _inverse_matrix(invert(_color_matrix)) {}
 
-	const transfer_function &transfer_function() const { return _transfer; }
+	const transfer_function &transfer() const { return _transfer; }
 
 	const XYZ toXYZ(const rgb &rgb) const;
 	const rgb toRGB(const XYZ &XYZ) const;
