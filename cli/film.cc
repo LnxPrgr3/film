@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "transfer.h"
 #include <cmath>
+#include <getopt.h>
 #include <iostream>
 #include <unistd.h>
 using namespace std;
@@ -52,7 +53,14 @@ struct options {
 static options parse_options(int argc, char *argv[]) {
 	options result;
 	int ch;
-	while ((ch = getopt(argc, argv, "t:g:c:f:p:s:")) != -1) {
+	static const option long_opts[] = {{"title", required_argument, NULL, 't'},
+	                                   {"gamma", required_argument, NULL, 'g'},
+	                                   {"neutral-color-gamma", required_argument, NULL, 'c'},
+	                                   {"fog", required_argument, NULL, 'f'},
+	                                   {"print-contrast", required_argument, NULL, 'p'},
+	                                   {"colorspace", required_argument, NULL, 's'},
+	                                   {0}};
+	while ((ch = getopt_long(argc, argv, "t:g:c:f:p:s:", long_opts, NULL)) != -1) {
 		switch (ch) {
 		case 't':
 			result.title = optarg;
