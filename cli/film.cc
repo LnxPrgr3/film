@@ -33,8 +33,7 @@ static const colorspace *find_colorspace(const char *name) {
 		}
 	}
 
-	cout << "# Warning: invalid colorspace " << name << " requested; using CIERGB\n";
-	return &CIERGB_colorspace;
+	return NULL;
 }
 
 struct options {
@@ -79,6 +78,16 @@ static void show_help(const char *name) {
 	exit(-1);
 }
 
+static double parse_float_optarg(const char *name) {
+	char *end;
+	double result = strtod(optarg, &end);
+	if (*end != '\0') {
+		cerr << "Not a valid number: " << optarg << "\n\n";
+		show_help(name);
+	}
+	return result;
+}
+
 static options parse_options(int argc, char *argv[]) {
 	options result;
 	int ch;
@@ -96,21 +105,26 @@ static options parse_options(int argc, char *argv[]) {
 			result.title = optarg;
 			break;
 		case 'g':
-			result.gamma = strtod(optarg, NULL);
+			result.gamma = parse_float_optarg(argv[0]);
 			break;
 		case 'c':
-			result.correct_color_for_gamma = strtod(optarg, NULL);
+			result.correct_color_for_gamma = parse_float_optarg(argv[0]);
 			break;
 		case 'f':
-			result.fog = 1. / pow(2., strtod(optarg, NULL));
+			result.fog = 1. / pow(2., parse_float_optarg(argv[0]));
 			break;
 		case 'p':
-			result.print_contrast = strtod(optarg, NULL);
+			result.print_contrast = parse_float_optarg(argv[0]);
 			break;
 		case 's':
 			result.colorspace = find_colorspace(optarg);
+			if (result.colorspace == NULL) {
+				cerr << "Unrecognized colorspace: " << optarg << "\n\n";
+				show_help(argv[0]);
+			}
 			break;
 		case 'h':
+		default:
 			show_help(argv[0]);
 			break;
 		}
