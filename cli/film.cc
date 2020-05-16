@@ -27,7 +27,7 @@ static const colorspace *find_colorspace(const char *name) {
 	}
 	name_lower[name_len] = 0;
 
-	for (int i = 0; i < sizeof(colorspaces)/sizeof(colorspaces[0]); ++i) {
+	for (int i = 0; i < sizeof(colorspaces) / sizeof(colorspaces[0]); ++i) {
 		if (!strcmp(colorspaces[i].name, name_lower)) {
 			return colorspaces[i].entry;
 		}
@@ -50,6 +50,35 @@ struct options {
 	      fog((0.75f / 255.f) / 12.92f), print_contrast(-1), colorspace(&CIERGB_colorspace) {}
 };
 
+static void show_help(const char *name) {
+	const char *options_text =
+	    "Options:\n  title: the title of the generated LUT\n  gamma: the 'gamma', or contrast, of "
+	    "the response curve\n  neutral color gamma: the gamma setting at which color saturation is "
+	    "affected\n    as little aspossible (for medium tones)\n  fog: the darkest possible "
+	    "output, in f stops below full output\n  print contrast: cascades a second curve so that "
+	    "the output contrast ratio is\n    print contrast:1\n  colorspace: the output LUT will "
+	    "expect the input image to be in this\n    colorspace, and the output image will also be "
+	    "in this colorspace\n\n";
+	char spaces[strlen(name) + 9];
+	for (int i = 0; i < sizeof(spaces) - 1; ++i) {
+		spaces[i] = ' ';
+	}
+	spaces[sizeof(spaces) - 1] = '\0';
+	cerr << "Usage: " << name << " [--title | -t title]\n"
+	     << spaces << "[--gamma | -g gamma]\n"
+	     << spaces << "[--neutral-color-gamma | -c neutral-color-gamma]\n"
+	     << spaces << "[--fog | -f fog]\n"
+	     << spaces << "[--print-contrast | -p print contrast]\n"
+	     << spaces << "[--colorspace | -s colorspace]\n"
+	     << spaces << "[--help | -h]\n\n"
+	     << options_text << "Available color spaces:\n";
+	for (int i = 0; i < sizeof(colorspaces) / sizeof(colorspaces[0]); ++i) {
+		cerr << "  " << colorspaces[i].name << '\n';
+	}
+	cerr << "\nProgram writes the generated LUT as a CUBE file to standard output.\n";
+	exit(-1);
+}
+
 static options parse_options(int argc, char *argv[]) {
 	options result;
 	int ch;
@@ -59,8 +88,9 @@ static options parse_options(int argc, char *argv[]) {
 	                                   {"fog", required_argument, NULL, 'f'},
 	                                   {"print-contrast", required_argument, NULL, 'p'},
 	                                   {"colorspace", required_argument, NULL, 's'},
+	                                   {"help", no_argument, NULL, 'h'},
 	                                   {0}};
-	while ((ch = getopt_long(argc, argv, "t:g:c:f:p:s:", long_opts, NULL)) != -1) {
+	while ((ch = getopt_long(argc, argv, "t:g:c:f:p:s:h", long_opts, NULL)) != -1) {
 		switch (ch) {
 		case 't':
 			result.title = optarg;
@@ -79,6 +109,9 @@ static options parse_options(int argc, char *argv[]) {
 			break;
 		case 's':
 			result.colorspace = find_colorspace(optarg);
+			break;
+		case 'h':
+			show_help(argv[0]);
 			break;
 		}
 	}
