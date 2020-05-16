@@ -9,6 +9,16 @@
 #include <unistd.h>
 using namespace std;
 
+struct colorspace_entry {
+	const char *name;
+	const colorspace *entry;
+};
+
+static const colorspace_entry colorspaces[] = {{"ciergb", &CIERGB_colorspace},
+                                               {"prophoto", &ProPhoto_colorspace},
+                                               {"srgb", &sRGB_colorspace},
+                                               {"bt709", &bt709_colorspace}};
+
 static const colorspace *find_colorspace(const char *name) {
 	const int name_len = strlen(name);
 	char name_lower[name_len + 1];
@@ -17,20 +27,10 @@ static const colorspace *find_colorspace(const char *name) {
 	}
 	name_lower[name_len] = 0;
 
-	if (!strcmp("ciergb", name_lower)) {
-		return &CIERGB_colorspace;
-	}
-
-	if (!strcmp("prophoto", name_lower)) {
-		return &ProPhoto_colorspace;
-	}
-
-	if (!strcmp("srgb", name_lower)) {
-		return &sRGB_colorspace;
-	}
-
-	if (!strcmp("bt709", name_lower)) {
-		return &bt709_colorspace;
+	for (int i = 0; i < sizeof(colorspaces)/sizeof(colorspaces[0]); ++i) {
+		if (!strcmp(colorspaces[i].name, name_lower)) {
+			return colorspaces[i].entry;
+		}
 	}
 
 	cout << "# Warning: invalid colorspace " << name << " requested; using CIERGB\n";
