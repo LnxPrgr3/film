@@ -10,6 +10,22 @@
 #include <unistd.h>
 using namespace std;
 
+struct version_info {
+	short major;
+	short minor;
+	short patch;
+	bool beta;
+};
+
+ostream &operator<<(ostream &str, const version_info &version) {
+	str << version.major << '.' << version.minor << '.' << version.patch;
+	if (version.beta)
+		str << "-beta";
+	return str;
+}
+
+static const version_info version = {1, 0, 0, false};
+
 struct colorspace_entry {
 	const char *name;
 	const colorspace *entry;
@@ -70,6 +86,7 @@ static void show_help(const char *name) {
 	     << spaces << "[--fog | -f fog]\n"
 	     << spaces << "[--print-contrast | -p print contrast]\n"
 	     << spaces << "[--colorspace | -s colorspace]\n"
+	     << spaces << "[--version | -v]\n"
 	     << spaces << "[--help | -h]\n\n"
 	     << options_text << "Available color spaces:\n";
 	for (int i = 0; i < sizeof(colorspaces) / sizeof(colorspaces[0]); ++i) {
@@ -98,9 +115,10 @@ static options parse_options(int argc, char *argv[]) {
 	                                   {"fog", required_argument, NULL, 'f'},
 	                                   {"print-contrast", required_argument, NULL, 'p'},
 	                                   {"colorspace", required_argument, NULL, 's'},
+	                                   {"version", no_argument, NULL, 'v'},
 	                                   {"help", no_argument, NULL, 'h'},
 	                                   {0}};
-	while ((ch = getopt_long(argc, argv, "t:g:c:f:p:s:h", long_opts, NULL)) != -1) {
+	while ((ch = getopt_long(argc, argv, "t:g:c:f:p:s:hv", long_opts, NULL)) != -1) {
 		switch (ch) {
 		case 't':
 			result.title = optarg;
@@ -123,6 +141,10 @@ static options parse_options(int argc, char *argv[]) {
 				cerr << "Unrecognized colorspace: " << optarg << "\n\n";
 				show_help(argv[0]);
 			}
+			break;
+		case 'v':
+			cerr << "film version " << version << "\n";
+			exit(-1);
 			break;
 		case 'h':
 		default:
