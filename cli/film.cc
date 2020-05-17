@@ -24,7 +24,7 @@ ostream &operator<<(ostream &str, const version_info &version) {
 	return str;
 }
 
-static const version_info version = {1, 0, 0, false};
+static const version_info version = {2, 0, 0, true};
 
 struct colorspace_entry {
 	const char *name;
