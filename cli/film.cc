@@ -54,7 +54,7 @@ static void show_help(const char *name) {
 	const char *options_text =
 	    "Options:\n  title: the title of the generated LUT\n  gamma: the 'gamma', or contrast, of "
 	    "the response curve\n  neutral color gamma: the gamma setting at which color saturation is "
-	    "affected\n    as little aspossible (for medium tones)\n  fog: the darkest possible "
+	    "affected\n    as little as possible (for medium tones)\n  fog: the darkest possible "
 	    "output, in f stops below full output\n  print contrast: cascades a second curve so that "
 	    "the output contrast ratio is\n    print contrast:1\n  colorspace: the output LUT will "
 	    "expect the input image to be in this\n    colorspace, and the output image will also be "
