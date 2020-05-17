@@ -86,7 +86,8 @@ static void show_help(const char *name) {
 	     << spaces << "[--fog | -f fog]\n"
 	     << spaces << "[--print-contrast | -p print contrast]\n"
 	     << spaces << "[--colorspace | -s colorspace]\n"
-	     << spaces << "[--version | -v]" << spaces << "[--help | -h]\n\n"
+	     << spaces << "[--version | -v]\n"
+	     << spaces << "[--help | -h]\n\n"
 	     << options_text << "Available color spaces:\n";
 	for (int i = 0; i < sizeof(colorspaces) / sizeof(colorspaces[0]); ++i) {
 		cerr << "  " << colorspaces[i].name << '\n';

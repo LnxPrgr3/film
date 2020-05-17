@@ -26,6 +26,7 @@ Usage: ./cli/film [--title | -t title]
                   [--fog | -f fog]
                   [--print-contrast | -p print contrast]
                   [--colorspace | -s colorspace]
+                  [--version | -v]
                   [--help | -h]
 
 Options:
