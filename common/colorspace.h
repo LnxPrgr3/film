@@ -10,10 +10,10 @@ private:
 	const matrix _inverse_matrix;
 	const transfer_function &_transfer;
 
-	static constexpr matrix scale(const matrix matrix) { return matrix / matrix[1][0]; }
-
 	static constexpr matrix color_matrix(const xy r, const xy g, const xy b, const xy w) {
-		const xyz red(r), green(g), blue(b);
+		const xyz red = xyz(r).normalized();
+		const xyz green = xyz(g).normalized();
+		const xyz blue = xyz(b).normalized();
 		const xyz white = xyz(w).normalized();
 		const vector white_vector(white.x, white.y, white.z);
 		const matrix tristimulus_matrix = {
@@ -22,7 +22,7 @@ private:
 		const matrix result =
 		    tristimulus_matrix *
 		    matrix{{scalars[0], 0, 0}, {0, scalars[1], 0}, {0, 0, scalars[2]}};
-		return scale(result);
+		return result;
 	}
 
 public:
@@ -32,8 +32,8 @@ public:
 	      _inverse_matrix(invert(_color_matrix)) {}
 
 	constexpr colorspace(const matrix color_matrix, const transfer_function &transfer)
-	    : _transfer(transfer), _color_matrix(scale(color_matrix)),
-	      _inverse_matrix(invert(_color_matrix)) {}
+	    : _transfer(transfer), _color_matrix(color_matrix), _inverse_matrix(invert(_color_matrix)) {
+	}
 
 	const transfer_function &transfer() const { return _transfer; }
 
