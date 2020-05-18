@@ -22,6 +22,10 @@ private:
 	const matrix _inverse_matrix;
 	const transfer_function &_transfer;
 
+	static constexpr matrix cat02 = {
+	    {0.7328f, 0.4296f, -0.1624f}, {-0.7036f, 1.6975f, 0.0061f}, {0.0030f, 0.0136f, 0.9834f}};
+	static constexpr xyz d50 = xyz(daylight_illuminant(50)).normalized();
+
 	static constexpr matrix color_matrix(const xy r, const xy g, const xy b, const xy w) {
 		const xyz red = xyz(r).normalized();
 		const xyz green = xyz(g).normalized();
@@ -34,7 +38,10 @@ private:
 		const matrix result =
 		    tristimulus_matrix *
 		    matrix{{scalars[0], 0, 0}, {0, scalars[1], 0}, {0, 0, scalars[2]}};
-		return result;
+		return result * invert(cat02) *
+		       matrix{
+		           {white.x / d50.x, 0, 0}, {0, white.y / d50.y, 0}, {0, 0, white.z / d50.z}} *
+		       cat02;
 	}
 
 public:
