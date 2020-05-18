@@ -26,6 +26,13 @@ private:
 	    {0.7328f, 0.4296f, -0.1624f}, {-0.7036f, 1.6975f, 0.0061f}, {0.0030f, 0.0136f, 0.9834f}};
 	static constexpr xyz d50 = xyz(daylight_illuminant(50)).normalized();
 
+	static constexpr matrix adapt_matrix(const matrix x, const xyz white) {
+		return x * invert(cat02) *
+		       matrix{
+		           {d50.x / white.x, 0, 0}, {0, d50.y / white.y, 0}, {0, 0, d50.z / white.z}} *
+		       cat02;
+	};
+
 	static constexpr matrix color_matrix(const xy r, const xy g, const xy b, const xy w) {
 		const xyz red = xyz(r).normalized();
 		const xyz green = xyz(g).normalized();
@@ -38,10 +45,7 @@ private:
 		const matrix result =
 		    tristimulus_matrix *
 		    matrix{{scalars[0], 0, 0}, {0, scalars[1], 0}, {0, 0, scalars[2]}};
-		return result * invert(cat02) *
-		       matrix{
-		           {d50.x / white.x, 0, 0}, {0, d50.y / white.y, 0}, {0, 0, d50.z / white.z}} *
-		       cat02;
+		return adapt_matrix(result, white);
 	}
 
 public:
@@ -50,9 +54,9 @@ public:
 	    : _transfer(transfer), _color_matrix(color_matrix(r, g, b, w)),
 	      _inverse_matrix(invert(_color_matrix)) {}
 
-	constexpr colorspace(const matrix color_matrix, const transfer_function &transfer)
-	    : _transfer(transfer), _color_matrix(color_matrix), _inverse_matrix(invert(_color_matrix)) {
-	}
+	constexpr colorspace(const matrix color_matrix, const xy w, const transfer_function &transfer)
+	    : _transfer(transfer), _color_matrix(adapt_matrix(color_matrix, xyz(w).normalized())),
+	      _inverse_matrix(invert(_color_matrix)) {}
 
 	const transfer_function &transfer() const { return _transfer; }
 

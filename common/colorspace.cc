@@ -9,9 +9,9 @@ const rgb colorspace::toRGB(const XYZ &XYZ) const {
 static constexpr matrix ciergb_matrix{
     {0.49000, 0.31000, 0.20000}, {0.17697, 0.81240, 0.01063}, {0.00000, 0.01000, 0.99000}};
 
-constexpr const colorspace CIERGB_colorspace(ciergb_matrix, gamma_2_2_transfer);
+constexpr const colorspace CIERGB_colorspace(ciergb_matrix, {1 / 3.f, 1 / 3.f}, gamma_2_2_transfer);
 
-constexpr const colorspace CIERGB_linear_colorspace(ciergb_matrix, linear_transfer);
+constexpr const colorspace CIERGB_linear_colorspace(ciergb_matrix, {1 / 3.f, 1 / 3.f}, linear_transfer);
 
 constexpr const colorspace ProPhoto_colorspace({0.734699, 0.265301}, {0.159597, 0.840403},
                                                {0.036598, 0.000105}, {0.345704, 0.358540},
