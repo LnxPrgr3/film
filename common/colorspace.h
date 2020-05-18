@@ -40,7 +40,7 @@ private:
 		    matrix{{scalars[0], 0, 0}, {0, scalars[1], 0}, {0, 0, scalars[2]}};
 		return result * invert(cat02) *
 		       matrix{
-		           {white.x / d50.x, 0, 0}, {0, white.y / d50.y, 0}, {0, 0, white.z / d50.z}} *
+		           {d50.x / white.x, 0, 0}, {0, d50.y / white.y, 0}, {0, 0, d50.z / white.z}} *
 		       cat02;
 	}
 
