@@ -68,6 +68,7 @@ extern const colorspace CIERGB_colorspace;
 extern const colorspace CIERGB_linear_colorspace;
 extern const colorspace ProPhoto_colorspace;
 extern const colorspace sRGB_colorspace;
+extern const colorspace sRGB_2_2_colorspace;
 extern const colorspace bt709_colorspace;
 
 #endif

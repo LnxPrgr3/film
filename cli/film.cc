@@ -34,6 +34,7 @@ struct colorspace_entry {
 static const colorspace_entry colorspaces[] = {{"ciergb", &CIERGB_colorspace},
                                                {"prophoto", &ProPhoto_colorspace},
                                                {"srgb", &sRGB_colorspace},
+                                               {"srgb2.2", &sRGB_2_2_colorspace},
                                                {"bt709", &bt709_colorspace}};
 
 static const colorspace *find_colorspace(const char *name) {
