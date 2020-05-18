@@ -7,10 +7,10 @@
 constexpr xy daylight_illuminant(int id) {
 	const float temperature = id * 100.f;
 	const float x = temperature > 7000.f
-	                    ? (0.23704f + 0.24748 * (1000.f / temperature) +
+	                    ? (0.23704f + 0.24748f * (1000.f / temperature) +
 	                       1.9018f * (1000000.f / (temperature * temperature)) -
 	                       2.0064f * (1000000000.f / (temperature * temperature * temperature)))
-	                    : (0.244063f + 0.09911 * (1000.f / temperature) +
+	                    : (0.244063f + 0.09911f * (1000.f / temperature) +
 	                       2.9678f * (1000000.f / (temperature * temperature)) -
 	                       4.607f * (1000000000.f / (temperature * temperature * temperature)));
 	return {x, -3.f * x * x + 2.87f * x - 0.275f};
