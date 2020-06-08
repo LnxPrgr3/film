@@ -10,9 +10,9 @@ colorspace film::working_colorspace() const {
 	float high = 1.f + _fog;
 	float low = _fog - subtract / 2.f;
 
-	const xy red = CIERGB_linear_colorspace.toXYZ(rgb(high, low, low)).chromacity();
-	const xy green = CIERGB_linear_colorspace.toXYZ(rgb(low, high, low)).chromacity();
-	const xy blue = CIERGB_linear_colorspace.toXYZ(rgb(low, low, high)).chromacity();
+	const xy red = film_colorspace.toXYZ(rgb(high, low, low)).chromacity();
+	const xy green = film_colorspace.toXYZ(rgb(low, high, low)).chromacity();
+	const xy blue = film_colorspace.toXYZ(rgb(low, low, high)).chromacity();
 
 	return colorspace(red, green, blue, {1 / 3.f, 1 / 3.f}, linear_transfer);
 }
@@ -27,8 +27,8 @@ film::film(const colorspace &colorspace, float gamma, float correct_color_for_ga
       _source_colorspace(colorspace), _working_colorspace(working_colorspace()) {}
 
 rgb film::operator()(rgb x) const {
-	rgb working = CIERGB_linear_colorspace.toRGB(_source_colorspace.toXYZ(x));
+	rgb working = film_colorspace.toRGB(_source_colorspace.toXYZ(x));
 	return _source_colorspace.toRGB(
-	    CIERGB_linear_colorspace.toXYZ(_working_colorspace.toRGB(CIERGB_linear_colorspace.toXYZ(
+	    film_colorspace.toXYZ(_working_colorspace.toRGB(film_colorspace.toXYZ(
 	        {response(working.r()), response(working.g()), response(working.b())}))));
 }

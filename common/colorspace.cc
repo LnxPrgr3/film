@@ -13,6 +13,11 @@ constexpr const colorspace CIERGB_colorspace(ciergb_matrix, {1 / 3.f, 1 / 3.f}, 
 
 constexpr const colorspace CIERGB_linear_colorspace(ciergb_matrix, {1 / 3.f, 1 / 3.f}, linear_transfer);
 
+constexpr const colorspace film_colorspace({1.218566503589899, 0.3584150197062992},
+                                           {-0.05122537562604323, 0.9912120200333888},
+                                           {-0.2688638782934198, -0.4798893559292432},
+                                           {1 / 3.f, 1 / 3.f}, linear_transfer);
+
 constexpr const colorspace ProPhoto_colorspace({0.734699, 0.265301}, {0.159597, 0.840403},
                                                {0.036598, 0.000105}, {0.345704, 0.358540},
                                                prophoto_transfer);
