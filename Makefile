@@ -6,3 +6,4 @@ CXXFLAGS=-std=c++14 ${CFLAGS}
 all clean:
 	make $@ -C common CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}"
 	make $@ -C cli CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}"
+	make $@ -C designer CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}"
