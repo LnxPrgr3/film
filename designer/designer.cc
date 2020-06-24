@@ -106,6 +106,14 @@ class graph {
 public:
 	void add(double wavelength) { _wavelengths.push_back(wavelength); }
 	void distance(int angle, double distance) { _distance[angle] = distance; }
+	double distance(int angle) const { return _distance[angle]; }
+
+	template <typename CB>
+	void for_each(CB &&cb) const {
+		for(double wavelength: _wavelengths) {
+			cb(wavelength);
+		}
+	}
 
 private:
 	std::vector<double> _wavelengths;
@@ -167,7 +175,36 @@ void sweep_target(graph &target) {
 	}
 }
 
+static double error(const graph &target, const matrix &M) {
+	double error = 0;
+	int count = 0;
+	CIELUV white{1, 1, 1};
+	target.for_each([&](double w) {
+		double Xt = observer_x(w);
+		double Yt = observer_y(w);
+		double Zt = observer_z(w);
+		CIELUV luvt{Xt, Yt, Zt};
+		double ra = sensor_r(w);
+		double ga = sensor_g(w);
+		double ba = sensor_b(w);
+		vector XYZa = M * vector(ra, ga, ba);
+		CIELUV luva{XYZa[0], XYZa[1], XYZa[2]};
+		double angle = degrees(atan2(luva.vp() - white.vp(), luva.up() - white.up()));
+		double measured_distance =
+		    sqrt(square(luva.up() - white.up()) + square(luva.vp() - white.vp()));
+		double gamut_distance = target.distance(angle * 10);
+		double gamut_error = measured_distance <= gamut_distance
+		                         ? 0
+		                         : square(1300 * (measured_distance - gamut_distance));
+		error += square(luva.L() - luvt.L()) + square(luva.u() - luvt.u()) +
+		         square(luva.v() - luvt.v()) + gamut_error;
+		++count;
+	});
+	return error / count;
+}
+
 int main(int argc, char *argv[]) {
 	graph target;
 	sweep_target(target);
+	std::cout << "error = " << error(target, matrix{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}) << '\n';
 }
