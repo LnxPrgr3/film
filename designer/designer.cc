@@ -1,6 +1,7 @@
 #include "types.h"
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 struct debug {
 	template <typename T> debug &operator<<(const T &t) {
@@ -21,14 +22,18 @@ public:
 		_subpixels[0] = Y > cube(6.f / 29) ? 116 * pow(Y, 1.f / 3) - 16 : cube(29.f / 3) * Y;
 		_subpixels[1] = up(X, Y, Z);
 		_subpixels[2] = vp(X, Y, Z);
+		_subpixels[3] = 13 * _subpixels[0] * (_subpixels[1] - 4. / 19);
+		_subpixels[4] = 13 * _subpixels[0] * (_subpixels[2] - 9. / 19);
 	}
 
 	double L() const { return _subpixels[0]; }
-	double u() const { return _subpixels[1]; }
-	double v() const { return _subpixels[2]; }
+	double up() const { return _subpixels[1]; }
+	double vp() const { return _subpixels[2]; }
+	double u() const { return _subpixels[3]; }
+	double v() const { return _subpixels[4]; }
 
 private:
-	double _subpixels[3];
+	double _subpixels[5];
 
 	static double up(double X, double Y, double Z) { return (4 * X) / (X + 15 * Y + 3 * Z); }
 	static double vp(double X, double Y, double Z) { return (9 * Y) / (X + 15 * Y + 3 * Z); }
@@ -66,171 +71,103 @@ static double sensor_g(double x) { return sensor(x, 550); }
 
 static double sensor_b(double x) { return sensor(x, 505); }
 
-class graph_ent {
-public:
-	graph_ent() : _set(false), _purple(false) {}
+int sign(double x) { return x >= 0 ? 1 : -1; }
 
-	operator bool() const { return _set; }
-	operator float() const { return 100 * float(_value) / ((1U << 30) - 1); }
-	graph_ent &operator=(float x) {
-		_value = round((x / 100) * ((1U << 30) - 1));
-		_set = true;
-		return *this;
+double degrees(double radians) {
+	static const double pi2 = 8 * atan(1.);
+	return (radians >= 0 ? radians : (pi2 + radians)) * (360 / pi2);
+}
+
+double radians(double degrees) {
+	static const double pi45 = atan(1.) / 45;
+	return degrees * pi45;
+}
+
+template <typename F> double find_zero(F &&f, double a, double b) {
+	double c = (a + b) / 2;
+	double r = f(c);
+	while (r != 0 && c != a && c != b) {
+		if (sign(r) == sign(f(a)))
+			a = c;
+		else
+			b = c;
+		c = (a + b) / 2;
+		r = f(c);
 	}
-	bool isPurple() const { return _purple; }
-	float getWavelength() const { return _wavelength; }
-	float getRedness() const { return _redness; }
+	return c;
+}
 
-	graph_ent &setWavelength(float wavelength) {
-		_purple = false;
-		_wavelength = wavelength;
-		return *this;
-	}
-
-	graph_ent &setRedness(float redness) {
-		_purple = true;
-		_redness = redness;
-		return *this;
-	}
-
-private:
-	bool _set : 1;
-	bool _purple : 1;
-	uint32_t _value : 30;
-	union {
-		float _wavelength;
-		float _redness;
-	};
-};
+template <typename F> double derivative(F &&f, double x) {
+	double h = 0.001;
+	return (-f(x + 2 * h) + 8 * f(x + h) - 8 * f(x - h) + f(x - 2 * h)) / (12 * h);
+}
 
 class graph {
 public:
-	graph() : _start_x(-1), _start_y(-1) {}
-	int map(float x) { return round(float(x) * _size); }
-	float map_back(int x) { return float(x) / _size; }
-	int size() const { return _size; }
-	graph_ent operator()(int x, int y) const { return _graph[y][x]; }
-	graph_ent &operator()(int x, int y) {
-		if (_start_x == -1 && _start_y == -1) {
-			_start_x = x;
-			_start_y = y;
-			debug << "Start = " << map_back(x) << ',' << map_back(y) << '\n';
-		}
-		return _graph[y][x];
-	}
-
-	template <typename CB> void for_each(CB &&cb) const {
-		int x = _start_x;
-		int y = _start_y;
-		const graph_ent *ent = &_graph[y][x];
-		cb(*ent);
-		while (true) {
-			int nx = x;
-			int ny = y;
-			const float owavelength = ent->getWavelength();
-			float nwavelength = 700;
-			for (int dy = -1; dy <= 1; ++dy) {
-				for (int dx = -1; dx <= 1; ++dx) {
-					if (dy == 0 && dx == 0)
-						continue;
-					const graph_ent *nent = &_graph[y + dy][x + dx];
-					if (*nent && !nent->isPurple() &&
-					    (nent->getWavelength() > owavelength) &&
-					    (nent->getWavelength() - owavelength <
-					     nwavelength - owavelength)) {
-						nx = x + dx;
-						ny = y + dy;
-						nwavelength = nent->getWavelength();
-					}
-				}
-			}
-			if (nx == x && ny == y)
-				break;
-			x = nx;
-			y = ny;
-			ent = &_graph[y][x];
-			cb(*ent);
-		}
-	}
+	void add(double wavelength) { _wavelengths.push_back(wavelength); }
+	void distance(int angle, double distance) { _distance[angle] = distance; }
 
 private:
-	static constexpr int _size = 32000;
-	graph_ent _graph[_size][_size];
-	int _start_x;
-	int _start_y;
+	std::vector<double> _wavelengths;
+	double _distance[3600];
 };
 
 void sweep_target(graph &target) {
-	int x = 0, y = 0, count = 0;
-	float value = 0;
-	float metadata = 0;
-	int size = target.size();
-	for (int i = 432 * size; i < 643 * size; ++i) {
-		double w = double(i) / size;
-		double X = observer_x(w);
-		double Y = observer_y(w);
-		double Z = observer_z(w);
-		CIELUV luv(X, Y, Z);
-		int xp = target.map(luv.u());
-		int yp = target.map(luv.v());
-		if (x == xp && y == yp) {
-			value += luv.L();
-			metadata += w;
-			++count;
-		} else {
-			if (count) {
-				target(x, y).setWavelength(metadata / count) = value / count;
-				debug << target.map_back(x) << ',' << target.map_back(y) << ','
-				      << float(target(x, y))
-				      << ", wavelength = " << target(x, y).getWavelength() << '\n';
-			}
-			x = xp;
-			y = yp;
-			value = luv.L();
-			metadata = w;
-			count = 1;
+	CIELUV p0{observer_x(432), observer_y(432), observer_z(432)};
+	CIELUV p1{observer_x(432.1), observer_y(432.1), observer_z(432.1)};
+	double distance =
+	    sqrt(square(p1.L() - p0.L()) + square(p1.u() - p0.u()) + square(p1.v() - p0.v()));
+	double wavelength = 432;
+	do {
+		debug << wavelength << '\n';
+		target.add(wavelength);
+		CIELUV p{observer_x(wavelength), observer_y(wavelength), observer_z(wavelength)};
+		wavelength = find_zero(
+		    [=](double w) {
+			    CIELUV pn{observer_x(w), observer_y(w), observer_z(w)};
+			    return sqrt(square(pn.L() - p.L()) + square(pn.u() - p.u()) +
+			                square(pn.v() - p.v())) -
+			           distance;
+		    },
+		    wavelength, wavelength + 0.2);
+	} while (wavelength <= 643);
+	CIELUV p2{observer_x(643), observer_y(643), observer_z(643)};
+	double angle_start = degrees(atan2(p0.vp() - 9. / 19, p0.up() - 4. / 19));
+	double angle_end = degrees(atan2(p2.vp() - 9. / 19, p2.up() - 4. / 19));
+	debug << angle_start << " degrees @ 432nm\n";
+	debug << angle_end << " degrees @ 643nm\n";
+	wavelength = 432;
+	for (int angle = angle_start * 10 + 1; angle > angle_end * 10; --angle) {
+		wavelength = find_zero(
+		    [=](double w) {
+			    CIELUV pn{observer_x(w), observer_y(w), observer_z(w)};
+			    return degrees(atan2(pn.vp() - 9. / 19, pn.up() - 4. / 19)) -
+			           (double(angle) / 10);
+		    },
+		    wavelength, wavelength + 1);
+		CIELUV p{observer_x(wavelength), observer_y(wavelength), observer_z(wavelength)};
+		double distance = sqrt(square(p.up() - 4. / 19) + square(p.vp() - 9. / 19));
+		debug << angle << ',' << wavelength << ',' << distance << '\n';
+		target.distance(angle, distance);
+	}
+	double a = (p2.vp() - p0.vp()) / (p2.up() - p0.up());
+	double b = p2.vp() - a * p2.up();
+	for (int angle = angle_end * 10; angle != int(angle_start * 10 + 1); --angle) {
+		if (angle < 0) {
+			angle = 3600 + angle;
 		}
-	}
-	if (count) {
-		target(x, y).setWavelength(metadata / count) = value / count;
-		debug << target.map_back(x) << ',' << target.map_back(y) << ',' << float(target(x, y))
-		      << ", wavelength = " << target(x, y).getWavelength() << '\n';
-	}
-	x = y = count = 0;
-	for (int i = 0; i < 100 * size; ++i) {
-		double Bp = float(100 * size - i) / (100 * size);
-		double Rp = float(i) / (100 * size);
-		double X = Bp * observer_x(432) + Rp * observer_x(643);
-		double Y = Bp * observer_y(432) + Rp * observer_y(643);
-		double Z = Bp * observer_z(432) + Rp * observer_z(643);
-		CIELUV luv(X, Y, Z);
-		int xp = target.map(luv.u());
-		int yp = target.map(luv.v());
-		if (x == xp && y == yp) {
-			value += luv.L();
-			metadata += Rp;
-			++count;
-		} else {
-			if (count && !target(x, y)) {
-				target(x, y).setRedness(metadata / count) = value / count;
-				debug << target.map_back(x) << ',' << target.map_back(y) << ','
-				      << float(target(x, y))
-				      << ", redness = " << target(x, y).getRedness() << '\n';
-			}
-			x = xp;
-			y = yp;
-			value = luv.L();
-			metadata = Rp;
-			count = 1;
-		}
-	}
-	if (count) {
-		target(x, y).setRedness(metadata / count) = value / count;
-		debug << target.map_back(x) << ',' << target.map_back(y) << ',' << float(target(x, y))
-		      << ", redness = " << target(x, y).getRedness() << '\n';
+		double t = radians(double(angle) / 10);
+		double c = sin(t) / cos(t);
+		double d = 9. / 19 - c * 4. / 19;
+		double u = -((d - b) / (c - a));
+		double v = a * u + b;
+		double distance = sqrt(square(u - 4. / 19) + square(v - 9. / 19));
+		debug << angle << ',' << distance << '\n';
+		target.distance(angle, distance);
 	}
 }
 
-static graph target;
-
-int main(int argc, char *argv[]) { sweep_target(target); }
+int main(int argc, char *argv[]) {
+	graph target;
+	sweep_target(target);
+}
