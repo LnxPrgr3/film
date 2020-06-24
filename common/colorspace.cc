@@ -6,6 +6,9 @@ const rgb colorspace::toRGB(const XYZ &XYZ) const {
 	return rgb(_transfer.encode(_inverse_matrix * XYZ));
 }
 
+constexpr matrix colorspace::cat02;
+constexpr xyz colorspace::d50;
+
 static constexpr matrix ciergb_matrix{
     {0.49000, 0.31000, 0.20000}, {0.17697, 0.81240, 0.01063}, {0.00000, 0.01000, 0.99000}};
 
