@@ -108,9 +108,8 @@ public:
 	void distance(int angle, double distance) { _distance[angle] = distance; }
 	double distance(int angle) const { return _distance[angle]; }
 
-	template <typename CB>
-	void for_each(CB &&cb) const {
-		for(double wavelength: _wavelengths) {
+	template <typename CB> void for_each(CB &&cb) const {
+		for (double wavelength : _wavelengths) {
 			cb(wavelength);
 		}
 	}
@@ -195,7 +194,7 @@ static double error(const graph &target, const matrix &M) {
 		double gamut_distance = target.distance(angle * 10);
 		double gamut_error = measured_distance <= gamut_distance
 		                         ? 0
-		                         : square(1300 * (measured_distance - gamut_distance));
+		                         : square(1950 * (measured_distance - gamut_distance));
 		error += square(luva.L() - luvt.L()) + square(luva.u() - luvt.u()) +
 		         square(luva.v() - luvt.v()) + gamut_error;
 		++count;
@@ -206,5 +205,43 @@ static double error(const graph &target, const matrix &M) {
 int main(int argc, char *argv[]) {
 	graph target;
 	sweep_target(target);
-	std::cout << "error = " << error(target, matrix{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}) << '\n';
+	float model[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+	float slopes[3][3];
+	double initial_error = error(target, model);
+	double mu = 0.0000001;
+	double err = initial_error;
+
+	for (int epoch = 0; epoch <= 16000; ++epoch) {
+		for (int y = 0; y < 3; ++y) {
+			for (int x = 0; x < 3; ++x) {
+				slopes[y][x] = derivative(
+				    [&](double value) {
+					    double save = model[y][x];
+					    model[y][x] = value;
+					    double err = error(target, model);
+					    model[y][x] = save;
+					    return err;
+				    },
+				    model[y][x]);
+			}
+		}
+		for (int y = 0; y < 3; ++y) {
+			for (int x = 0; x < 3; ++x) {
+				model[y][x] -= mu * slopes[y][x];
+			}
+		}
+		err = error(target, model);
+		if (epoch % 1000 == 0)
+			std::cout << epoch << ": " << err << '\n';
+	}
+
+	std::cout << '\n';
+
+	for (int y = 0; y < 3; ++y) {
+		for (int x = 0; x < 3; ++x) {
+			std::cout << model[y][x] << '\t';
+		}
+		std::cout << '\n';
+	}
+	std::cout << '\n';
 }
